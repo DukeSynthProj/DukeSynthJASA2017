@@ -1,10 +1,10 @@
-# Duke University Synthetic Data Project
+# Synthetic Data Project
 # Differential private algorithm using beta, binomial, and Laplace probabilities
 
-# Authors:  Felipe Barrientos, Tom Balmat
+# Authors:
 # Version:  5/14/2017
 
-# Copyright 2017 Duke University, Durham, North Carolina
+# Copyright 2017
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction, including
