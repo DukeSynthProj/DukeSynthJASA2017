@@ -35,9 +35,7 @@ options(scipen=999999)
 #### compile does not improve performance much (because we use apply functions!)
 #####################################################################################################
 
-sys.source(paste("\\\\ssri-nas-fe01.oit.duke.edu\\ssri\\OPM\\Users\\Current\\tjb48\\Analysis\\DIBBS\\",
-                 "VerificationMeasures\\VerificationSystem\\VerificationServer.r", sep=""),
-           env=environment())
+sys.source("VerificationServer.r", env=environment())
 
 
 #####################################################################################################
@@ -59,13 +57,16 @@ opmAuth <- queryObservations(source="authentic",
 proc.time()-t
 gc()
 
+# alternative to querying SQL:  load test observations
+# opmAuth <- read.table("OPMSyntheticTestData.csv", header=T, sep=",", strip.white=T)
+
 # construct model cfg
 # not that sex is not specified since each subset will have one value only (is this homo(mono)sexual?)
 # note the placement of fixed effects in order of dimension for optimal parallel cross-products in X'X
 mCfg <- list("Y"="lnBasicPay",
              "contX"=c("Age", "AgeSq", "EducationYears"),
              "fixedX"=c("Race", "FY", "BureauID", "Occupation"),
-             "refLevel"=c("E", "1988", "114009000", "303"),
+             "refLevel"=c("E", "1988", "VATA", "303"),
              "TransformXY"=rbind(data.frame("f"="^", "par1"="Age", "par2"="2", "colID"="AgeSq"),
                                  data.frame("f"="log", "par1"="BasicPay", "par2"="", "colID"="lnBasicPay")))
 
@@ -127,13 +128,17 @@ opmSynth <- queryObservations(source="synthetic",
 proc.time()-t
 gc()
 
+# alternative to querying SQL:  load test observations
+# opmAuth <- read.table("OPMSyntheticTestData.csv", header=T, sep=",", strip.white=T)
+# opmSynth <- read.table("OPMSyntheticTestData.csv", header=T, sep=",", strip.white=T)
+
 # construct model cfg
 # not that sex is not specified since each subset will have one value only (is this homo(mono)sexual?)
 # note the placement of fixed effects in order of dimension for optimal parallel cross-products in X'X
 mCfg <- list("Y"="lnBasicPay",
              "contX"=c("Age", "AgeSq", "EducationYears"),
              "fixedX"=c("Race", "BureauID", "Occupation"),
-             "refLevel"=c("E", "114009000", "303"),
+             "refLevel"=c("E", "VATA", "303"),
              "TransformXY"=rbind(data.frame("f"="^", "par1"="Age", "par2"="2", "colID"="AgeSq"),
                                  data.frame("f"="log", "par1"="BasicPay", "par2"="", "colID"="lnBasicPay")))
 
@@ -171,7 +176,7 @@ proc.time()-t
 gc()
 
 # review
-pLongF
-pLongM
+pLongF$pPosteriorMode$pPosteriorMode
+pLongM$pPosteriorMode$pPosteriorMode
 
 

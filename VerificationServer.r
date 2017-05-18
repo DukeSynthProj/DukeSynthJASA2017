@@ -23,33 +23,17 @@
 
 options(stringsAsFactors=F)
 
-#library(compiler)
-
 #####################################################################################################
 #### load X'X fixed effects solution and differential privacy functions
 #### note that functions are created in the current environment
 #### an alternative to sourcing functions is to store them in a library (package) and load it
 #### loading with sys.source(file, env=environment()) improves performance of function execution
 #### when compared to performance when loaded with source()
-#### compile does not improve performance much (because we use apply functions!)
 #####################################################################################################
 
-sys.source(paste("\\\\SSRI-NAS-FE01.oit.duke.edu\\SSRI\\OPM\\Users\\Current\\tjb48\\Analysis\\",
-                 "FixedEffectsModel\\LargeFixedEffectsModel\\FixedEffectsMatrixSolution.r", sep=""),
-           env=environment())
-
-sys.source(paste("\\\\ssri-nas-fe01.oit.duke.edu\\ssri\\OPM\\Users\\Current\\tjb48\\Analysis\\DIBBS\\",
-                 "VerificationMeasures\\VerificationSystem\\BetaBinomialLaplacePosteriorDP.r", sep=""),
-           env=environment())
-#DP.threshold <- cmpfun(DP.threshold, options=c("optimize"=3))
-#dlaplace <- cmpfun(dlaplace, options=c("optimize"=3))
-#plaplace <- cmpfun(plaplace, options=c("optimize"=3))
-#qlaplace <- cmpfun(qlaplace, options=c("optimize"=3))
-#rlaplace <- cmpfun(rlaplace, options=c("optimize"=3))
-
-sys.source(paste("\\\\ssri-nas-fe01.oit.duke.edu\\ssri\\OPM\\Users\\Current\\tjb48\\Analysis\\DIBBS\\",
-                 "VerificationMeasures\\VerificationSystem\\CommonFunctions.r", sep=""),
-           env=environment())
+sys.source("FixedEffectsMatrixSolution.r", env=environment())
+sys.source("BetaBinomialLaplacePosteriorDP.r", env=environment())
+sys.source("CommonFunctions.r", env=environment())
 
 
 #####################################################################################################
@@ -118,7 +102,7 @@ queryObservations <- function(source, cols, payPlan=NULL, fullTime=F, startYear=
   }      
 
   # configure database connection
-  db <- odbcDriverConnect(connection="driver={SQL Server}; server=ssri-swork-pap2; database=HC_Dev;
+  db <- odbcDriverConnect(connection="driver={SQL Server}; server=; database=;
                           trusted_connection=true", readOnlyOptimize=T)
 
   # query observations
@@ -155,6 +139,34 @@ queryObservations <- function(source, cols, payPlan=NULL, fullTime=F, startYear=
 fitFEModel <- function(data, Y, contX, fixedX, refLevel, interactionX=NULL, TransformXY=NULL,
                        estBetaVar="", robustVarID="", nCoreXTX=6, nCoreBetaVar=0) {
 
+  # parameters:
+  # data:         data frame containing data to fit model to
+  # Y:            character string containing name of vector in data containing dependent values
+  # contX:        vector of character strings containing names of vectors in data containing
+  #               continuous independent values
+  # fixedX:       vector of character strings containing names of vectors in data containing
+  #               fixed effect independent columns (sex, race, bureau, occupation, etc.)
+  # refLevel:     vector of character strings containing fixed effect reference levels (in
+  #               order of fixedX positions
+  # interactionX: two column array of interaction vector pairs in data, each row a separate
+  #               interaction 
+  # TransformXY:  dependent/independent variable transformation instructions
+  #               four column array, ech row applies one transform to a specified vector in data
+  #               row format is F, par1, par2, colID
+  #               where f is an R or user defined function to execute the transform
+  #                     par1 is a character string indicating wich data column to transform
+  #                     par2 is a constant, if needed for the transform function (the 2 in x**2)
+  #                     colID is the character string to be applied to the transformed values  
+  #               example:  rbind(data.frame("f"="^", "par1"="Age", "par2"="2", "colID"="AgeSq"),
+  #                               data.frame("f"="log", "par1"="BasicPay", "par2"="", "colID"="lnBasicPay"))
+  #               squares Age, naming the new vector "AgeSq" (which can now be referenced in the Y,
+  #               contX, or fixedX parameters) and converts BasicPay to log(BasicPay), giving it
+  #               the name "lnBasicPay"
+  # estBetaVar:   type of standard errors to estimate (stdOLS, robust, cluster)
+  # robustVarID:  cluster standard error group ID (must exist in data)
+  # nCoreXTX:     number of parallel cores to use in X'X composition
+  # nCoreBetaVar: number of parallel cores to use in robust/cluster SE estimation
+                       
   # parameter verification to be made:
   # variables in Y, contX, fixedX, interactionX, and transformXY exist in data
   # each fixed effect has a ref level specified and the level is represented in the data
@@ -199,6 +211,33 @@ fitFEModel <- function(data, Y, contX, fixedX, refLevel, interactionX=NULL, Tran
 thresholdMeasure <- function(authData, nPartitions, model, modelCfg, threshPar, threshVal, threshDir,
                              epsPriv, alpha) {
 
+  # compute threshold verification measure
+  # partition authentic data into random "equal size" disjoint subsets and fit specified model to each
+  # compute proportion of partitions with specified model parameter(s) beyond specified threshold value
+  # apply posterior beta-binomial-Laplace to proportions 
+
+  # parameters:
+  # authData:     data frame containing authentic OPM data
+  # nPartitions:  number of random disjoint authentic data partitions to make
+  # model:        character string, type of model to fit (currently, feOLS is the only supported model)
+  # modelCfg:     list with elements Y, contX, fixedX, refLevel, and TransformXY
+  #               these are passed without modification to fitFEModel (see function for explanation of
+  #               parameters)
+  #               example:
+  #               list("Y"="lnBasicPay",
+  #                    "contX"=c("Age", "AgeSq", "EducationYears"),
+  #                    "fixedX"=c("Race", "BureauID", "Occupation"),
+  #                    "refLevel"=c("E", "VATA", "303"),
+  #                    "TransformXY"=rbind(data.frame("f"="^", "par1"="Age", "par2"="2", "colID"="AgeSq"),
+  #                                        data.frame("f"="log", "par1"="BasicPay", "par2"="", "colID"="lnBasicPay")))
+  # threshPar:    independent variable vectors in authData to report verification measures on (multiple
+  #               vectors can be specified, c("Race-A", "Race-B") for races A and B)
+  # threshVal:    threshold value (proportion partitions with threshPar estimates above/below this value
+  #               are reported)
+  # treshDir:     direction of comparison (<, <=, or >)
+  # epsPriv:      Laplace posterior noise epsilon parameter
+  # alpha:        beta distribution alpha parameter (two element vector)
+  
   # parameter verification to be made:
   # variables in modelCfg exist in authData
   # threshPar exists in authData data and modelCfg
@@ -316,6 +355,28 @@ longitudinalThreePtMeasure <- function(authData, nPartitions, synthData, model, 
   # the synthetic data
   # apply posterior beta-binomial-Laplace to proportions 
 
+  # parameters:
+  # authData:         data frame containing authentic OPM data
+  # nPartitions:      number of random disjoint authentic data partitions to make
+  # synthData:        data frame containing synthetic OPM data
+  # model:            character string, type of model to fit (currently, feOLS is the only supported model)
+  # modelCfg:         list with elements Y, contX, fixedX, refLevel, and TransformXY
+  #                   these are passed without modification to fitFEModel (see function for explanation of
+  #                   parameters)
+  #                   example:
+  #                   list("Y"="lnBasicPay",
+  #                        "contX"=c("Age", "AgeSq", "EducationYears"),
+  #                        "fixedX"=c("Race", "BureauID", "Occupation"),
+  #                        "refLevel"=c("E", "VATA", "303"),
+  #                        "TransformXY"=rbind(data.frame("f"="^", "par1"="Age", "par2"="2", "colID"="AgeSq"),
+  #                                            data.frame("f"="log", "par1"="BasicPay", "par2"="", "colID"="lnBasicPay")))
+  # verPar:           independent variable vectors in authData to report verification measures on (multiple
+  #                   vectors can be specified, c("Race-A", "Race-B") for races A and B)
+  # intervalMidpoint: mid-point year
+  # deltaBand:        tolerance value for tolerance band verification method (as opposed to sign method)
+  # epsPriv:      Laplace posterior noise epsilon parameter
+  # alpha:        beta distribution alpha parameter (two element vector)
+  
   # parameter verification to be made:
   # variables in modelCfg exist in authData/synthData
   # verPar exists in synthetic data, authentic data, and modelCfg

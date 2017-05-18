@@ -22,10 +22,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # import Laplace distribution functions
-sys.source(paste("\\\\SSRI-NAS-FE01.oit.duke.edu\\SSRI\\OPM\\Users\\Shared\\",
-                 "DIBBS\\SyntheticDataVerificationSystem\\VerificationServer\\",
-                 "LaplaceDistribution.r", sep=""),
-           env=environment())
+sys.source("LaplaceDistribution.r", env=environment())
 
 #####################################################################################
 #### DP algorithm
