@@ -1,10 +1,10 @@
-# Duke University Synthetic Data Project
+# Synthetic Data Project
 # Verification Measure Script
 
-# Author:  Tom Balmat
+# Author:
 # Version:  5/14/2017
 
-# Copyright 2017 Duke University, Durham, North Carolina
+# Copyright 2017
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction, including
@@ -45,7 +45,6 @@ sys.source("VerificationServer.r", env=environment())
 # query authentic observations
 # note the inclusion of pseudo ID for partitioning
 # also, both sexes - subsets will be generated for individual models by sex
-t <- proc.time()
 opmAuth <- queryObservations(source="authentic",
                              cols=c("FY, PseudoID", "Sex", "Race", "Age", "BasicPay", "EducationYears",
                                     "BureauID, OccupationalCategory", "Occupation"),
@@ -54,7 +53,6 @@ opmAuth <- queryObservations(source="authentic",
                              startYear=0,
                              endYear=9999,
                              whereClause=NULL)
-proc.time()-t
 gc()
 
 # alternative to querying SQL:  load test observations
@@ -80,7 +78,6 @@ mCfg <- list("Y"="lnBasicPay",
 #   fixed effect interactions (note that regardless of appearance in interaction specification, continuous
 #   var names always appear first), and fe1(level1)-fe2(level2) for fixed effect-fixed effect interactions
 #     examples:  Age-EducationYears, Age-Occupation(303), FY(2000)-BureauID(123456789)
-t <- proc.time() 
 pThresh <- lapply(c("F", "M"),
              function(sex) {
                k <- which(opmAuth[,"Sex"]==sex)
@@ -89,7 +86,6 @@ pThresh <- lapply(c("F", "M"),
                                 threshVal=-0.01, threshDir="<=", epsPriv=1, alpha=c(1, 1))
              })
 names(pThresh) <- c("Female", "Male")
-proc.time()-t
 
 # review
 pThresh$Female$pPosteriorMode
@@ -103,7 +99,6 @@ pThresh$Male$pPosteriorMode
 # query authentic observations
 # note the inclusion of pseudo ID for partitioning
 # also, both sexes - subsets will be generated for individual models by sex and year
-t <- proc.time()
 opmAuth <- queryObservations(source="authentic",
                              cols=c("PseudoID", "Sex", "Race", "Age", "EducationYears",
                                     "FY", "BureauID, "Occupation", "BasicPay"),
@@ -112,10 +107,8 @@ opmAuth <- queryObservations(source="authentic",
                              startYear=0,
                              endYear=9999,
                              whereClause=NULL)
-proc.time()-t
 gc()
 
-t <- proc.time()
 opmSynth <- queryObservations(source="synthetic",
                               cols=c("PseudoID", "Sex", "Race", "Age", "EducationYears",
                                      "FY", "BureauID", "Occupation", "BasicPay"),
@@ -125,7 +118,6 @@ opmSynth <- queryObservations(source="synthetic",
                               endYear=2011,
                               #whereClause=t(matrix(c("Age", ">50", "Sex", "='F'"), nrow=2)))
                               whereClause=NULL)
-proc.time()-t
 gc()
 
 # alternative to querying SQL:  load test observations
@@ -154,24 +146,20 @@ mCfg <- list("Y"="lnBasicPay",
 #     examples:  Age-EducationYears, Age-Occupation(303), FY(2000)-BureauID(123456789)
 
 # females
-t <- proc.time()
 ks <- which(opmSynth[,"Sex"]=="F")
 ka <- which(opmAuth[,"Sex"]=="F")
 pLongF <- longitudinalThreePtMeasure(synthData=opmSynth[ks,], authData=opmAuth[ka,], nPartitions=50,
                       model="feOLS", modelCfg=mCfg, verPar=c("Race-A", "Race-B", "Race-C", "Race-D"),
                       intervalMidpoint=c(1998, 2000, 2000, 2000), deltaBand=0.002, epsPriv=1,
                       alpha=c(1, 1))
-proc.time()-t
 
 # males
-t <- proc.time()
 ks <- which(opmSynth[,"Sex"]=="M")
 ka <- which(opmAuth[,"Sex"]=="M")
 pLongM <- longitudinalThreePtMeasure(synthData=opmSynth[ks,], authData=opmAuth[ka,], nPartitions=50,
                       model="feOLS", modelCfg=mCfg, verPar=c("Race-A", "Race-B", "Race-C", "Race-D"),
                       intervalMidpoint=c(2003, 2002, 1998, 1997), deltaBand=0.002, epsPriv=1,
                       alpha=c(1, 1))
-proc.time()-t
 
 gc()
 
