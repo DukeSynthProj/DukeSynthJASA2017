@@ -1,0 +1,67 @@
+R CMD BATCH --no-save --no-restore  01.00.Aux_Files.R
+R CMD BATCH --no-save --no-restore  01.01.Aux_Files_Freq_trans.R
+R CMD BATCH --no-save --no-restore  01.02.Aux_Files_Agencies_24_years.R
+R CMD BATCH --no-save --no-restore  01.03.00.Computing_Probs.R
+R CMD BATCH --no-save --no-restore  01.03.001.Moves.R
+R CMD BATCH --no-save --no-restore  01.03.002.Prob_trans.R
+R CMD BATCH --no-save --no-restore  01.04.Generator_Agency.R
+R CMD BATCH --no-save --no-restore  01.05.Perfect_Sample.R
+
+R CMD BATCH --no-save --no-restore  02.00.data_gender.R; killall R
+R CMD BATCH --no-save --no-restore  02.01.data_synthetic_gender.R; killall R
+R CMD BATCH --no-save --no-restore  02.03.00.Generator_Gender.R; killall R
+
+R CMD BATCH --no-save --no-restore  03.00.data_race.R; killall R 
+R CMD BATCH --no-save --no-restore  03.01.data_synthetic_race.R; killall R 
+R CMD BATCH --no-save --no-restore  03.02.00.Generator_Race.R; killall R 
+R CMD BATCH --no-save --no-restore  03.03.Generator_Eribrigde.R; killall R 
+
+R CMD BATCH --no-save --no-restore  04.00.data_educ.R; killall R 
+R CMD BATCH --no-save --no-restore  04.01.data_synthetic_educ.R; killall R 
+R CMD BATCH --no-save --no-restore  04.02.00.Generator_Educ.R; killall R
+
+R CMD BATCH --no-save --no-restore  05.00.data_AgeYrsdMilm.R; killall R
+R CMD BATCH --no-save --no-restore  05.01.data_synthetic_AgeYrsdMilm.R; killall R
+R CMD BATCH --no-save --no-restore  05.02.00.Generator_AgeYrsdMilm.R; killall R
+
+R CMD BATCH --no-save --no-restore  06.00.data_occ.R; killall R
+R CMD BATCH --no-save --no-restore  06.01.data_synthetic_occ.R; killall R
+R CMD BATCH --no-save --no-restore  06.02.00.Generator_occ.R; killall R
+
+R CMD BATCH --no-save --no-restore  07.00.data_other_variables.R; killall R
+R CMD BATCH --no-save --no-restore  07.01.data_synthetic_other_variables.R; killall R
+R CMD BATCH --no-save --no-restore  07.02.00.Generator_other_variables.R; killall R
+
+R CMD BATCH --no-save --no-restore  08.00.data_bargunit.R; killall R
+R CMD BATCH --no-save --no-restore  08.01.data_synthetic_bargunit.R; killall R
+R CMD BATCH --no-save --no-restore  08.02.00.Generator_bargunit.R; killall R
+
+R CMD BATCH --no-save --no-restore  09.00.data_wage.R; killall R
+R CMD BATCH --no-save --no-restore  09.01.data_synthetic_wage.R; killall R; killall R
+
+R CMD BATCH --no-save --no-restore  09.02.00.Generator_wage_Y1.R Y1.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 2' 09.02.00.Generator_wage_Y2.R Y2.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 3' 09.02.00.Generator_wage_Y2.R Y3.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 4' 09.02.00.Generator_wage_Y2.R Y4.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 5' 09.02.00.Generator_wage_Y2.R Y5.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 6' 09.02.00.Generator_wage_Y2.R Y6.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 7' 09.02.00.Generator_wage_Y2.R Y7.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 8' 09.02.00.Generator_wage_Y2.R Y8.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 9' 09.02.00.Generator_wage_Y2.R Y9.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 10' 09.02.00.Generator_wage_Y2.R Y10.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 11' 09.02.00.Generator_wage_Y2.R Y11.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 12' 09.02.00.Generator_wage_Y2.R Y12.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 13' 09.02.00.Generator_wage_Y2.R Y13.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 14' 09.02.00.Generator_wage_Y2.R Y14.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 15' 09.02.00.Generator_wage_Y2.R Y15.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 16' 09.02.00.Generator_wage_Y2.R Y16.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 17' 09.02.00.Generator_wage_Y2.R Y17.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 18' 09.02.00.Generator_wage_Y2.R Y18.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 19' 09.02.00.Generator_wage_Y2.R Y19.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 20' 09.02.00.Generator_wage_Y2.R Y20.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 21' 09.02.00.Generator_wage_Y2.R Y21.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 22' 09.02.00.Generator_wage_Y2.R Y22.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 23' 09.02.00.Generator_wage_Y2.R Y23.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore  '--args 24' 09.02.00.Generator_wage_Y2.R Y24.Rout;killall R;killall R
+R CMD BATCH --no-save --no-restore   10.00.00.retallow_svsr.R; killall R 
+
